@@ -1,0 +1,11 @@
+classes=49
+
+train=data/train.txt
+
+valid=data/test.txt
+
+names=3d.names
+
+backup=backup/
+
+eval=coco

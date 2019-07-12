@@ -129,3 +129,5 @@ dmypy.json
 
 # out file
 XJTU-XJTUfly3-Rx.txt
+
+*.pt

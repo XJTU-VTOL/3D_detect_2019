@@ -7,22 +7,24 @@ import time
 
 class XJTU:
     def __init__(self):
+        self.gui = gui.Gui()
         self.camera = camera.Camera()
         self.detect = detect.Detect()
-        self.gui = gui.Gui()
         self.outImage = []
         self.outText = {}
         self.outFilename = 'XJTU-XJTUfly3-Rx.txt'
 
     def main(self):
-        while not self.gui.start:
-            pass
+        print('Waiting start...')
+        while not self.gui.start():
+            time.sleep(1)
 
-        while not self.gui.stop:
+        while not self.gui.stop():
+            time.sleep(0.1)
+            print('start detect...')
             src = self.camera.frame()
             self.outImage, self.outText = self.detect.detect(src)
             self.gui.update(self.outImage, self.outText)
-            time.sleep(1)
 
         with open(self.outFilename, 'w') as f:
             f.write(str(self.outText))

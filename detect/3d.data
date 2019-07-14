@@ -4,7 +4,7 @@ train=data/train.txt
 
 valid=data/test.txt
 
-names=3d.names
+names=detect/3d.names
 
 backup=backup/
 

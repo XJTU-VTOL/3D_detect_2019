@@ -12,7 +12,7 @@ import torch.nn as nn
 from PIL import Image
 from tqdm import tqdm
 
-import torch_utils
+import detect.torch_utils
 
 matplotlib.rc('font', **{'size': 12})
 

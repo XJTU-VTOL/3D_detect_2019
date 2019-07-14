@@ -1,20 +1,20 @@
 import argparse
 import numpy as np
 import torch
-from utils import *
-from models import *
-from deep_model import *
-from torch_utils import *
-from datasets import *
+from detect.utils import *
+from detect.models import *
+from detect.deep_model import *
+from detect.torch_utils import *
+from detect.datasets import *
 import random
 import cv2
 
 
 class Detect:
-    def __init__(self, weights="latest.pt", deep_weights="deep_latest.pt", data_cfg='3d.data', img_size=416, conf_thres=0.5, nms_thres=0.4, real_thres=0.5):
-        self.device = torch_utils.select_device()
+    def __init__(self, weights="detect/latest.pt", deep_weights="detect/deep_latest.pt", data_cfg='detect/3d.data', img_size=416, conf_thres=0.5, nms_thres=0.4, real_thres=0.5):
+        self.device = select_device()
         # dark-net
-        self.model = Darknet("yolov3.cfg", img_size)
+        self.model = Darknet("detect/yolov3.cfg", img_size)
         self.model.load_state_dict(torch.load(weights, map_location=self.device)['model'])
         self.model.fuse()
         self.model.to(self.device).eval()
@@ -29,16 +29,20 @@ class Detect:
         self.real_thres = real_thres
         self.classes = load_classes(parse_data_cfg(data_cfg)['names'])
         self.colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(self.classes))]
+        print('model loaded...')
 
 
-    def detect(self, color: np.ndarray = None, deep: np.ndarray = None) -> tuple:
+    def detect(self, src) -> tuple:
         '''
 
         :param src: input image
         :return: tuple (outImage: numpy.ndarray, outText: dict)
         '''
+        print("one image")
         conf_thres = self.conf_thres
         nms_thres = self.nms_thres
+        color = src[0]
+        deep = src[1]
         img, _, _, _ = letterbox(color, new_shape=self.img_size, mode='square')
         # Normalize RGB
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB
@@ -48,13 +52,13 @@ class Detect:
         pred, _ = self.model(img)
         det = non_max_suppression(pred, conf_thres, nms_thres)[0]
         if det is None:
-            return (None, {})
-
+            return (color, {})
+        det[:, :4] = scale_coords(img.shape[2:], det[:, :4], color.shape).round()
         pre_det = det.split([1]*det.shape[0], 0)
         num_pre = len(pre_det)
         depth_img = deep
         real_detect = torch.tensor([0]*num_pre)
-        for ind,obj in enumerate(pre_det):
+        for ind, obj in enumerate(pre_det):
           obj = obj.squeeze()
           x1 = int(obj[0].item())
           y1 = int(obj[1].item())
@@ -63,8 +67,11 @@ class Detect:
           if x1>x2:
               x1, x2 = x2, x1
           if y1>y2:
-              y1,y2 = y2,y1
-          depth_bbox = depth_img[x1:x2,y1:y2,:]
+              y1, y2 = y2,y1
+          x2 = 1279 if x2>1280 else x2
+          y2 = 719 if y2>720 else y2
+          depth_bbox = depth_img[y1:y2, x1:x2, :]
+          print(depth_bbox)
           depth_bbox, _, _, _ = letterbox(depth_bbox, 50, mode='square')
           depth_bbox = depth_bbox[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB
           depth_bbox = np.ascontiguousarray(depth_bbox, dtype=np.float32)  # uint8 to float32
@@ -82,7 +89,6 @@ class Detect:
 
 
         if det is not None and len(det)>0:
-            det[:, :4] = scale_coords(img.shape[2:], det[:, :4], color.shape).round()
             print('%gx%g ' % img.shape[2:], end='')  # print image size
             for c in det[:, -1].unique():
                 n = (det[:, -1] == c).sum().item()
@@ -95,6 +101,7 @@ class Detect:
                 # Add bbox to the image
                 label = '%s %.2f' % (self.classes[int(cls)], conf)
                 plot_one_box(xyxy, color, label=label, color=self.colors[int(cls)])
+        print("finish")
         return (color, out_dict)
 
 

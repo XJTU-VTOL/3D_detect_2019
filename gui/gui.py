@@ -39,8 +39,8 @@ class GUI(tk.Frame):
         tk.Button(frame_rb, text='结束', command=self.end).pack(side='right')
 
         # 使用Label显示jpg图片
-        img = Image.open('gui/black.jpg')
-        img1 = ImageTk.PhotoImage(img)
+        global gui_image
+        img1 = ImageTk.PhotoImage(gui_image)
         self.label = tk.Label(frame_l, image=img1)  # 图片在左侧窗口显示
         self.label.pack(side='left')
         self.label.image = img1  # 防止图片闪现
@@ -118,6 +118,8 @@ class Gui:
             print('image')
         if text:
             gui_text = text
+        else:
+            gui_text = {}
 
 
     def start(self):

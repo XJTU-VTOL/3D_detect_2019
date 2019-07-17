@@ -11,7 +11,7 @@ import cv2
 
 
 class Detect:
-    def __init__(self, weights="detect/latest.pt", deep_weights="detect/deep_latest.pt", data_cfg='detect/3d.data', img_size=416, conf_thres=0.5, nms_thres=0.4, real_thres=0.5):
+    def __init__(self, weights="detect/latest.pt", deep_weights="detect/deep_latest.pt", data_cfg='detect/3d.data', img_size=416, conf_thres=0.7, nms_thres=0.4, real_thres=0.65):
         self.device = select_device()
         # dark-net
         self.model = Darknet("detect/yolov3.cfg", img_size)
@@ -71,12 +71,12 @@ class Detect:
           x2 = 1279 if x2>1280 else x2
           y2 = 719 if y2>720 else y2
           depth_bbox = depth_img[y1:y2, x1:x2, :]
-          print(depth_bbox)
           depth_bbox, _, _, _ = letterbox(depth_bbox, 50, mode='square')
-          depth_bbox = depth_bbox[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB
+          depth_bbox = cv2.cvtColor(depth_bbox, cv2.COLOR_BGR2HSV)
+          depth_bbox = depth_bbox[:, :, 0]
           depth_bbox = np.ascontiguousarray(depth_bbox, dtype=np.float32)  # uint8 to float32
           depth_bbox /= 255.0  # 0 - 255 to 0.0 - 1.0
-          depth_bbox = torch.from_numpy(depth_bbox).unsqueeze(0).to(self.device)
+          depth_bbox = torch.from_numpy(depth_bbox).view(-1, 50, 50).unsqueeze(0).to(self.device)
           conf = self.deep_model(depth_bbox)
           conf = conf.cpu()
           if conf>self.real_thres:

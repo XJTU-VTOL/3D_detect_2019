@@ -5,15 +5,7 @@ import torch.nn.functional as F
 class Deep_model(nn.Module):
     def __init__(self):
         super(Deep_model,self).__init__()
-        self.conv0 = nn.Sequential(  # input shape (1, 28, 28)
-            nn.Conv2d(
-                in_channels=3,  # input height
-                out_channels=1,  # n_filters
-                kernel_size=1,  # filter size
-                stride=1,  # filter movement/step
-                padding=0,  # 如果想要 con2d 出来的图片长宽没有变化, padding=(kernel_size-1)/2 当 stride=1
-            ),
-        )
+
         self.conv1 = nn.Sequential(  # input shape (1, 28, 28)
             nn.Conv2d(
                 in_channels=1,  # input height
@@ -39,7 +31,6 @@ class Deep_model(nn.Module):
         self.out = nn.Linear(64 * 4 * 4, 1)  # fully connected layer, output 10 classes
 
     def forward(self, x):
-        x = self.conv0(x)
         x = self.conv1(x)
         x = self.conv2(x)
         x = self.conv3(x)

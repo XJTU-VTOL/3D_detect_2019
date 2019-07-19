@@ -3,10 +3,9 @@ from PIL import Image, ImageTk
 import threading
 import cv2
 import numpy
-import time
 
 # 用于本文件中不同类之间的信息通道
-gui_image = Image.open('gui/black.jpg')
+gui_image = Image.fromarray(numpy.zeros((500, 500, 3), dtype='u1'))
 gui_text = {}
 start = False
 stop = False
@@ -70,7 +69,7 @@ class GUI(tk.Frame):
     def end(self):
         global stop
         stop = True
-        print('end...')
+        self.master.destroy()
 
     # Label更新图片
     def UpdateImage(self):
@@ -84,6 +83,8 @@ class GUI(tk.Frame):
     # text修改
     def UpdateText(self):
         global gui_text
+        for x in range(10):
+            self.counter[x].config(text='                                   ')
         x = 0
         for item in gui_text:
             self.counter[x].config(text='目标物ID：' + item + ' 数量：' + str(gui_text[item]))
@@ -93,7 +94,7 @@ class GUI(tk.Frame):
     def fun_timer(self):
         self.UpdateImage()
         self.UpdateText()
-        self.timer = threading.Timer(2, self.fun_timer)
+        self.timer = threading.Timer(1, self.fun_timer)
         self.timer.start()
 
 
@@ -116,6 +117,8 @@ class Gui:
             image = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
             gui_image = image
             print('image')
+        else:
+            gui_image = Image.fromarray(numpy.zeros((500, 500, 3), dtype='u1'))
         if text:
             gui_text = text
         else:

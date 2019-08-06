@@ -60,7 +60,7 @@ class GUI(tk.Frame):
         self.timer.start()
 
     # “开始”按钮调用函数
-    def begin(self):
+    def begin(self):`
         global start
         start = True
         print('begin...')

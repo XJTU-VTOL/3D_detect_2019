@@ -1,15 +1,15 @@
 import pyrealsense2 as rs
 import numpy as np
 import cv2
-
+import random
 
 class Camera:
     def __init__(self):
         # Pipeline config
         self.pipeline = rs.pipeline()
         self.config = rs.config()
-        self.config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 6)
-        self.config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 6)
+        self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        self.config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 10)
 
         # Start streaming
         self.profile = self.pipeline.start(self.config)
@@ -17,11 +17,24 @@ class Camera:
         # Print depth scale
         self.depth_sensor = self.profile.get_device().first_depth_sensor()
         self.depth_scale = self.depth_sensor.get_depth_scale()
-        print("Depth Scale is: ", self.depth_scale)
+
 
         # Align deep to color
         align_to = rs.stream.color
         self.align = rs.align(align_to)
+    def disdurb(self,image):
+        a = random.random()
+        b = random.random()
+        image  =  np.array(image)
+        image = cv2.resize(image ,(1024 -int(10*b),575 - int(a *10)))
+        image = image [0:image.shape[0]-int(a*10), 0:image.shape[1]-int(b *5)]
+        return image
+
+
+
+
+
+
 
     def frame(self) -> tuple:
         '''
@@ -43,6 +56,7 @@ class Camera:
         # Convert images to numpy arrays
         depth_image = np.asanyarray(depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
+        #color_image = self.disdurb(color_image)
 
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
@@ -51,7 +65,6 @@ class Camera:
 
     def main(self):
         color_image, depth_colormap = self.frame()
-
         cv2.imshow('Color', color_image)
         cv2.imshow('Depth', depth_colormap)
         cv2.waitKey(30)

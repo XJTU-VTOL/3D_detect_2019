@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "F:/文件/3D_detect/main112.py", line 148, in <module>
+    xjtu.main()
+  File "F:/文件/3D_detect/main112.py", line 96, in main
+    self.outImage, self.outText = self.detect.detect(src)
+  File "F:\文件\3D_detect\detect\detect.py", line 100, in detect
+    pred, _ = self.model(img)
+  File "D:\Python\python3.7\lib\site-packages\torch\nn\modules\module.py", line 489, in __call__
+    result = self.forward(*input, **kwargs)
+  File "F:\文件\3D_detect\detect\models.py", line 198, in forward
+    x = module(x)
+  File "D:\Python\python3.7\lib\site-packages\torch\nn\modules\module.py", line 489, in __call__
+    result = self.forward(*input, **kwargs)
+  File "D:\Python\python3.7\lib\site-packages\torch\nn\modules\container.py", line 92, in forward
+    input = module(input)
+  File "D:\Python\python3.7\lib\site-packages\torch\nn\modules\module.py", line 489, in __call__
+    result = self.forward(*input, **kwargs)
+  File "D:\Python\python3.7\lib\site-packages\torch\nn\modules\conv.py", line 320, in forward
+    self.padding, self.dilation, self.groups)
+RuntimeError: CUDA out of memory. Tried to allocate 2.75 MiB (GPU 0; 4.00 GiB total capacity; 3.00 GiB already allocated; 1.45 MiB free; 59.60 MiB cached)

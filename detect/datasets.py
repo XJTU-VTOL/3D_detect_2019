@@ -10,7 +10,6 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
-
 from detect.utils import xyxy2xywh
 from PIL import Image
 

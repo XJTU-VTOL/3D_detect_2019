@@ -1,0 +1,11 @@
+Exception in thread Thread-192:
+Traceback (most recent call last):
+  File "D:\Python\python3.7\lib\threading.py", line 917, in _bootstrap_inner
+    self.run()
+  File "D:\Python\python3.7\lib\threading.py", line 1166, in run
+    self.function(*self.args, **self.kwargs)
+  File "F:\文件\3D_detect\gui\gui.py", line 97, in fun_timer
+    self.UpdateText()
+  File "F:\文件\3D_detect\gui\gui.py", line 91, in UpdateText
+    self.counter[x].config(text='目标物ID：' + item + ' 数量：' + str(gui_text[item]))
+KeyError: 'ZC022'

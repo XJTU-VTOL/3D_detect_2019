@@ -2,12 +2,8 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import threading
 import cv2
-import numpy
-import time
-
 # 用于本文件中不同类之间的信息通道
-gui_image = Image.open('gui/black.jpg')
-gui_img = gui_image.resize((500, 500))
+gui_image = Image.open('black.jpg')
 gui_text = {}
 start = False
 stop = False
@@ -40,8 +36,8 @@ class GUI(tk.Frame):
         tk.Button(frame_rb, text='结束', command=self.end).pack(side='right')
 
         # 使用Label显示jpg图片
-        global gui_image
-        img1 = ImageTk.PhotoImage(gui_image)
+        img = Image.open('black.jpg')
+        img1 = ImageTk.PhotoImage(img)
         self.label = tk.Label(frame_l, image=img1)  # 图片在左侧窗口显示
         self.label.pack(side='left')
         self.label.image = img1  # 防止图片闪现
@@ -51,26 +47,25 @@ class GUI(tk.Frame):
 
         # Label创建黑色背景，待显示结果调用
         self.counter = []
-        for x in range(14):
-            temporary = tk.Label(frame_rt, text="                                   ", bg='black', fg='white')
+        for x in range(10):
+            temporary = tk.Label(frame_rt, text="                       "
+                                                "            ", bg='black', fg='white')
             self.counter.append(temporary)
             temporary.pack(side='top')
 
         # 定时刷新图片
-        self.timer = threading.Timer(0.3, self.fun_timer)
+        self.timer = threading.Timer(2, self.fun_timer)
         self.timer.start()
 
     # “开始”按钮调用函数
     def begin(self):
         global start
         start = True
-        print('begin...')
 
     # “结束”按钮调用函数
     def end(self):
         global stop
-        stop = True
-        print('end...')
+        stop = False
 
     # Label更新图片
     def UpdateImage(self):
@@ -80,26 +75,20 @@ class GUI(tk.Frame):
         image_3 = ImageTk.PhotoImage(image_2)
         self.label.config(image=image_3)  #更新图片
         self.label.image = image_3  # 防止闪现
-        
 
     # text修改
     def UpdateText(self):
         global gui_text
-        for x in range(14):
-            self.counter[x].config(text="                                   ")
         x = 0
         for item in gui_text:
-            try:
-                self.counter[x].config(text='目标物ID：' + item + ' 数量：' + str(gui_text[item]))
-            except:
-                pass
+            self.counter[x].config(text='目标物ID：' + item + ' 数量：' + str(gui_text[item]))
             x = x + 1
 
     # 定时刷新函数
     def fun_timer(self):
         self.UpdateImage()
         self.UpdateText()
-        self.timer = threading.Timer(0.3, self.fun_timer)
+        self.timer = threading.Timer(2, self.fun_timer)
         self.timer.start()
 
 
@@ -115,31 +104,14 @@ class Gui:
     def __init__(self):
         t1 = threading.Thread(target=Window)  # 窗口程序在子线程中运行
         t1.start()
+        global stop, start
+        self.start = start
+        self.stop = stop
 
     def update(self, img=None, text=None):
         global gui_text, gui_image
-        if img is not None:
+        if img:
             image = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
             gui_image = image
-            print('image')
         if text:
             gui_text = text
-        else:
-            gui_text = {}
-
-
-    def start(self):
-        global start
-        return start
-
-    def stop(self):
-        global stop
-        return stop
-
-    def main(self):
-        pass
-
-
-if __name__ == '__main__':
-    gui = Gui()
-    gui.main()
